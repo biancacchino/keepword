@@ -23,7 +23,8 @@ keepword turns it into a contract: it measures how often your coding agent break
 - [x] Verify Claude Code hook behavior against current docs: Stop hook can block and make Claude revise; PreToolUse can deny Write/Edit/Bash with a reason.
 - [x] Rule engine: load `keepword.toml`, check text, return violations with rule id and position. Skip code fences and quoted text.
 - [x] Failing tests first for the engine: em dash, U+2011 and other dash look-alikes, banned words (whole word, case-insensitive), commit trailer.
-- [ ] `keepword measure`: parse `~/.claude/projects/*/*.jsonl`, report violations per rule, per project, per week. Transcript parser isolated in one module, since the format is undocumented.
+- [x] `keepword measure`: parse `~/.claude/projects/*/*.jsonl`, report violations per rule, per project, per week. Transcript parser isolated in one module, since the format is undocumented.
+- [ ] Packaging: `pyproject.toml` with a `keepword` console script (until then: `python3 -m keepword`).
 - [ ] `keepword hook`: one entry point that Claude Code calls for Stop and PreToolUse events.
 - [ ] Retry cap so a Stop-hook block cannot loop forever.
 - [ ] `keepword install`: prints (does not silently write) the settings.json hook snippet.
@@ -45,6 +46,12 @@ keepword turns it into a contract: it measures how often your coding agent break
 - But the reply is already on screen when Stop runs. Blocking means Claude sends a second, corrected reply.
 - Open decision: for replies, block (forces a rewrite) or nudge via `additionalContext` (cheaper, fixes the next reply).
 - Claude Code caps Stop-hook continuations at 8 in a row; we also skip when `stop_hook_active` is true.
+
+## Baseline (2026-10-21, all transcripts incl. subagents)
+
+- Replies: 143/1,988 (7.2%) had an em dash. Files: 20/395 (5.1%). Commits: 1/83 (1.2%).
+- Week of 2026-09-14: 46.6% of items broke a rule. Every week since: 0-6%. Find out what changed that week.
+- Known noise: code files that mention a dash in a string count as file hits.
 
 ## Risks
 

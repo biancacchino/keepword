@@ -40,6 +40,13 @@ class Scopes(unittest.TestCase):
         self.assertEqual(check(text, [EM_DASH], "reply"), [])
         self.assertEqual(len(check(text, [EM_DASH], "file")), 2)
 
+    def test_quoted_words_are_mentions_in_replies_only(self):
+        reply = 'Your banned list ("leverages", "robust") and \u201cseamless\u201d. But robust here.'
+        [v] = check(reply, [BANNED], "reply")
+        self.assertEqual(v.match, "robust")
+        commit = 'git commit -m "feat: robust login"'
+        self.assertEqual(len(check(commit, [BANNED], "commit")), 1)
+
 
 class Loading(unittest.TestCase):
     def test_load_from_toml(self):
@@ -60,7 +67,7 @@ class Loading(unittest.TestCase):
 
     def test_shipped_config_catches_my_rules(self):
         rules = load_rules(Path(__file__).parent.parent.joinpath("keepword.toml").read_text())
-        commit = "feat: robust login — done\n\nGenerated with Claude Code"
+        commit = "feat: robust login \u2014 done\n\nGenerated with Claude Code"
         ids = [v.rule_id for v in check(commit, rules, "commit")]
         self.assertEqual(ids, ["banned-words", "no-em-dash", "no-ai-attribution"])
 

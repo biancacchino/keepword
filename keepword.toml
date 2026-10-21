@@ -7,7 +7,7 @@ id = "no-em-dash"
 message = "Never use the em dash. Use a plain dash."
 # Em dash, plus what models reach for when told not to use one:
 # en dash, horizontal bar, two/three-em dash, non-breaking hyphen.
-chars = ["—", "–", "―", "⸺", "⸻", "‑"]
+chars = ["\u2014", "\u2013", "\u2015", "\u2e3a", "\u2e3b", "\u2011"]
 
 [[rule]]
 id = "banned-words"

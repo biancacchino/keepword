@@ -6,7 +6,9 @@ from dataclasses import dataclass, field
 
 SCOPES = ["reply", "file", "commit"]
 # Fenced blocks and inline code. Quoting a banned thing in code is not using it.
-_CODE = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+_CODE = re.compile(r"```.*?```|`[^`\n]*`", re.DOTALL)
+# Quoted phrases in replies are mentions too. Not in commits: `-m "..."` quotes the whole message.
+_QUOTE = re.compile(r'"[^"\n]*"|\u201c[^\u201d\n]*\u201d')
 
 
 @dataclass
@@ -53,9 +55,10 @@ def load_rules(toml_text: str) -> list[Rule]:
 
 
 def check(text: str, rules: list[Rule], scope: str) -> list[Violation]:
-    if scope != "file":
-        # Blank out code but keep its newlines so line numbers stay right.
-        text = _CODE.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), text)
+    for regex, scopes in ((_CODE, ("reply", "commit")), (_QUOTE, ("reply",))):
+        if scope in scopes:
+            # Blank out the span but keep its newlines so line numbers stay right.
+            text = regex.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), text)
     found = []
     for rule in rules:
         if scope not in rule.scopes:
