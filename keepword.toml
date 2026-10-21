@@ -1,0 +1,22 @@
+# keepword rules. Each [[rule]] needs an id and at least one of chars, words, pattern.
+# scopes: where the rule applies. reply = Claude's messages, file = files it writes,
+# commit = commit messages. Default is all three.
+
+[[rule]]
+id = "no-em-dash"
+message = "Never use the em dash. Use a plain dash."
+# Em dash, plus what models reach for when told not to use one:
+# en dash, horizontal bar, two/three-em dash, non-breaking hyphen.
+chars = ["—", "–", "―", "⸺", "⸻", "‑"]
+
+[[rule]]
+id = "banned-words"
+message = "Plain language. Say what it does instead."
+words = ["leverage", "leverages", "leveraging", "robust", "seamless", "seamlessly", "comprehensive"]
+scopes = ["reply", "commit"]
+
+[[rule]]
+id = "no-ai-attribution"
+message = "No AI attribution in commits."
+pattern = '(?im)^co-authored-by:.*\b(claude|anthropic)\b|generated with claude code'
+scopes = ["commit"]
