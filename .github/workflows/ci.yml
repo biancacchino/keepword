@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: pipx run ruff==0.17.1 check .
+      - name: Source is ASCII (write look-alike dashes as escapes)
+        run: "! grep -rnP '[^[:ascii:]]' --include='*.py' --include='*.toml' ."
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          # Oldest supported (tomllib) and newest.
+          python-version: |
+            3.11
+            3.14
+      - run: |
+          python3.11 -m unittest -v
+          python3.14 -m unittest -v

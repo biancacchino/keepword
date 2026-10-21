@@ -29,7 +29,7 @@ keepword turns it into a contract: it measures how often your coding agent break
 - [ ] Retry cap so a Stop-hook block cannot loop forever.
 - [ ] `keepword install`: prints (does not silently write) the settings.json hook snippet.
 - [ ] README: one-line problem, before/after numbers, screenshot of `measure`, install.
-- [ ] CI on GitHub Actions (tests + lint), then `protect-main owner/keepword validate test`.
+- [x] CI on GitHub Actions (tests + lint), then `protect-main owner/keepword validate test`.
 - [ ] Publish to PyPI (needs my approval).
 
 ## Verification
