@@ -66,11 +66,8 @@ class Loading(unittest.TestCase):
             load_rules('[[rule]]\nid = "x"\nword = ["robust"]\n')
 
     def test_shipped_config_catches_my_rules(self):
-        rules = load_rules(Path(__file__).parent.parent.joinpath("keepword.toml").read_text())
+        rules = load_rules(Path(__file__).parent.parent.joinpath("keepword", "keepword.toml").read_text())
         commit = "feat: robust login \u2014 done\n\nGenerated with Claude Code"
         ids = [v.rule_id for v in check(commit, rules, "commit")]
         self.assertEqual(ids, ["banned-words", "no-em-dash", "no-ai-attribution"])
 
-
-if __name__ == "__main__":
-    unittest.main()

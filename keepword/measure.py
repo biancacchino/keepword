@@ -54,6 +54,7 @@ def format_report(report: Report) -> str:
         out.append(rule_id.ljust(22) + "".join(_rate(report.hits[rule_id, s], report.totals[s]).ljust(22) for s in SCOPES))
     out += ["", "By week (anything broken)"]
     out += [f"  {w}  {_rate(report.week_hits[w], report.week_totals[w])}" for w in sorted(report.week_totals)]
-    out += ["", "Worst projects"]
+    # Ordered by count, not rate: by rate, a project with 1 bad reply out of 1 would top the list.
+    out += ["", "Most violations, by project"]
     out += [f"  {p.ljust(30)}  {_rate(n, report.project_totals[p])}" for p, n in report.project_hits.most_common(5)]
-    return "\n".join(out)
+    return "\n".join(line.rstrip() for line in out)

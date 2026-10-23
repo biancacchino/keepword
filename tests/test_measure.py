@@ -67,7 +67,6 @@ class Transcripts(unittest.TestCase):
         out = format_report(measure(items(self.root), RULES))
         self.assertIn("1/3", out)
         self.assertIn("33.3%", out)
+        self.assertIn("Most violations, by project", out)
+        self.assertFalse([line for line in out.splitlines() if line != line.rstrip()])
 
-
-if __name__ == "__main__":
-    unittest.main()

@@ -24,7 +24,7 @@ keepword turns it into a contract: it measures how often your coding agent break
 - [x] Rule engine: load `keepword.toml`, check text, return violations with rule id and position. Skip code fences and quoted text.
 - [x] Failing tests first for the engine: em dash, U+2011 and other dash look-alikes, banned words (whole word, case-insensitive), commit trailer.
 - [x] `keepword measure`: parse `~/.claude/projects/*/*.jsonl`, report violations per rule, per project, per week. Transcript parser isolated in one module, since the format is undocumented.
-- [ ] Packaging: `pyproject.toml` with a `keepword` console script (until then: `python3 -m keepword`).
+- [x] Packaging: `pyproject.toml` with a `keepword` console script. Bundled rules are the fallback when there is no `./keepword.toml`.
 - [ ] `keepword hook`: one entry point that Claude Code calls for Stop and PreToolUse events.
 - [ ] Retry cap so a Stop-hook block cannot loop forever.
 - [ ] `keepword install`: prints (does not silently write) the settings.json hook snippet.

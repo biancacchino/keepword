@@ -1,0 +1,12 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "keepword"
+version = "0.1.0"
+description = "Your AGENTS.md is a wish list. keepword makes it a contract for Claude Code."
+requires-python = ">=3.11"
+
+[project.scripts]
+keepword = "keepword.__main__:main"
