@@ -1,7 +1,7 @@
 {
   "name": "keepword",
   "owner": {
-    "name": "Bianca Javier"
+    "name": "biancacchino"
   },
   "description": "keepword: hooks that make Claude Code keep your AGENTS.md rules.",
   "plugins": [
