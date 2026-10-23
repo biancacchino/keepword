@@ -42,13 +42,18 @@ def _texts(content) -> Iterator[tuple[str, str]]:
             continue
         if block.get("type") == "text":
             yield "reply", block.get("text", "")
-        elif block.get("type") == "tool_use":
-            name, inp = block.get("name"), block.get("input") or {}
-            if name == "Write":
-                yield "file", inp.get("content", "")
-            elif name == "Edit":
-                yield "file", inp.get("new_string", "")
-            elif name == "Bash" and "git commit" in inp.get("command", ""):
-                # ponytail: checks the whole command, so a chained `gh pr create` body counts too.
-                # A heredoc that merely mentions "git commit" also counts; parse the -m/-F args if that gets noisy.
-                yield "commit", inp["command"]
+        elif block.get("type") == "tool_use" and (found := tool_text(block.get("name"), block.get("input") or {})):
+            yield found
+
+
+def tool_text(name: str, inp: dict) -> tuple[str, str] | None:
+    """The (scope, text) a tool call writes, or None. Shared by measure and the hook."""
+    if name == "Write":
+        return "file", inp.get("content", "")
+    if name == "Edit":
+        return "file", inp.get("new_string", "")
+    if name == "Bash" and "git commit" in inp.get("command", ""):
+        # ponytail: checks the whole command, so a chained `gh pr create` body counts too.
+        # A heredoc that merely mentions "git commit" also counts; parse the -m/-F args if that gets noisy.
+        return "commit", inp["command"]
+    return None

@@ -1,10 +1,9 @@
 import argparse
 import sys
-from importlib import resources
 from pathlib import Path
 
 from keepword.measure import format_report, measure
-from keepword.rules import load_rules
+from keepword.rules import find_rules, load_rules
 from keepword.transcripts import DEFAULT_ROOT, items
 
 
@@ -16,10 +15,7 @@ def main(argv=None) -> int:
     m.add_argument("--transcripts", type=Path, default=DEFAULT_ROOT)
     args = parser.parse_args(argv)
 
-    source = args.rules or Path("keepword.toml")
-    label = str(source)
-    if not args.rules and not source.exists():
-        source, label = resources.files("keepword") / "keepword.toml", "bundled defaults"
+    source, label = (args.rules, str(args.rules)) if args.rules else find_rules(Path.cwd())
     try:
         rules = load_rules(source.read_text())
     except (OSError, ValueError) as e:

@@ -23,13 +23,18 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          # Oldest supported (tomllib) and newest.
+          # 3.9 is macOS system python3: the hook must fail open there. 3.11 is the oldest supported (tomllib).
           python-version: |
+            3.9
             3.11
             3.14
       - run: |
           python3.11 -m unittest -v
           python3.14 -m unittest -v
+      - name: Hook fails open on old Python
+        run: |
+          out=$(echo '{}' | python3.9 -m keepword.hook 2>&1) && exit 1
+          echo "$out" | grep "needs Python 3.11"
       - name: Installed command works outside the repo
         run: |
           python3.14 -m pip install .
