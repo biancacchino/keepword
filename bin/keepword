@@ -1,0 +1,4 @@
+#!/bin/sh
+# Run keepword from the plugin checkout, with no pip install.
+# PYTHONSAFEPATH keeps a keepword/ folder in the user's project from shadowing ours.
+PYTHONSAFEPATH=1 PYTHONPATH="$(dirname "$0")/.." exec python3 -m keepword "$@"

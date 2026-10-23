@@ -1,0 +1,14 @@
+{
+  "name": "keepword",
+  "owner": {
+    "name": "biancacchino"
+  },
+  "description": "keepword: hooks that make Claude Code keep your AGENTS.md rules.",
+  "plugins": [
+    {
+      "name": "keepword",
+      "source": "./",
+      "description": "Block replies, file writes, and commits that break your agent rules."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "keepword",
+  "version": "0.1.0",
+  "description": "Your AGENTS.md is a wish list. keepword makes it a contract: it blocks replies, file writes, and commits that break your rules.",
+  "author": { "name": "biancacchino" },
+  "repository": "https://github.com/biancacchino/keepword",
+  "license": "MIT"
+}
