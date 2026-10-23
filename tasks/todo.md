@@ -28,9 +28,9 @@ keepword turns it into a contract: it measures how often your coding agent break
 - [x] `python3 -m keepword.hook`: one entry point that Claude Code calls for Stop and PreToolUse events.
 - [x] Retry cap so a Stop-hook block cannot loop forever.
 - [x] Python version guard: the hook needs 3.11+ for `tomllib`, but macOS system `python3` is often 3.9. On an old Python, print a clear stderr message and fail open (never block the user's work).
-- [ ] Claude Code plugin: `.claude-plugin/plugin.json`, `hooks/hooks.json` calling `python3 ${CLAUDE_PLUGIN_ROOT}/...` (stdlib only, no pip), and a `/keepword-measure` slash command. Installing the plugin turns the hooks on, so there is no `keepword install` step.
-- [ ] Marketplace: `.claude-plugin/marketplace.json` in this repo, so users run `/plugin marketplace add biancacchino/keepword` then `/plugin install keepword`.
-- [ ] README: one-line problem, before/after numbers, screenshot of `measure`, install via the plugin marketplace.
+- [x] Claude Code plugin: `.claude-plugin/plugin.json`, `hooks/hooks.json` calling `python3 ${CLAUDE_PLUGIN_ROOT}/...` (stdlib only, no pip), and a `/keepword:measure` skill (plugin commands are namespaced). Installing the plugin turns the hooks on, so there is no `keepword install` step.
+- [x] Marketplace: `.claude-plugin/marketplace.json` in this repo, so users run `/plugin marketplace add biancacchino/keepword` then `/plugin install keepword@keepword`.
+- [x] README: one-line problem, before/after numbers, screenshot of `measure`, install via the plugin marketplace.
 - [x] CI on GitHub Actions (tests + lint), then `protect-main owner/keepword validate test`.
 - [ ] Optional: publish to PyPI so `uvx keepword measure` works without installing the plugin (needs my approval).
 
@@ -44,7 +44,7 @@ keepword turns it into a contract: it measures how often your coding agent break
 
 - Unit tests pass for every rule type, including look-alike characters.
 - `keepword measure` on my machine reproduces the 139/1,879 baseline.
-- End to end: install the plugin from the marketplace, ask Claude to write a sentence with an em dash, confirm it gets blocked and revised.
+- End to end (done 2026-10-23 with `claude -p --plugin-dir`, Write denied and reply resent clean; redo via the marketplace after merge): ask Claude to write a sentence with an em dash, confirm it gets blocked and revised.
 - After one week of real use, rerun `measure` and compare to the baseline. That number goes in the README.
 
 ## Hook findings (checked against code.claude.com/docs/en/hooks, 2026-10-21)
@@ -59,7 +59,9 @@ keepword turns it into a contract: it measures how often your coding agent break
 ## Baseline (2026-10-21, all transcripts incl. subagents)
 
 - Replies: 143/1,988 (7.2%) had an em dash. Files: 20/395 (5.1%). Commits: 1/83 (1.2%).
-- Week of 2026-09-14: 46.6% of items broke a rule. Every week since: 0-6%. Find out what changed that week.
+- Week of 2026-09-14: 46.6% of items broke a rule. Every week since: 0-6%.
+- Checked 2026-10-23: 108 real em dashes in dental-app replies, 2026-09-18 to 09-20. Not parser noise. Likely before the rule was in AGENTS.md; confirm the date it was added.
+- Claude Code deletes transcripts after 30 days (`cleanupPeriodDays`), so old weeks drop out of `measure` over time. Rerun 2026-10-23: replies 141/2,329 (6.1%).
 - Known noise: code files that mention a dash in a string count as file hits.
 
 ## Risks
