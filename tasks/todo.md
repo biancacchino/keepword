@@ -25,18 +25,26 @@ keepword turns it into a contract: it measures how often your coding agent break
 - [x] Failing tests first for the engine: em dash, U+2011 and other dash look-alikes, banned words (whole word, case-insensitive), commit trailer.
 - [x] `keepword measure`: parse `~/.claude/projects/*/*.jsonl`, report violations per rule, per project, per week. Transcript parser isolated in one module, since the format is undocumented.
 - [x] Packaging: `pyproject.toml` with a `keepword` console script. Bundled rules are the fallback when there is no `./keepword.toml`.
-- [ ] `keepword hook`: one entry point that Claude Code calls for Stop and PreToolUse events.
-- [ ] Retry cap so a Stop-hook block cannot loop forever.
-- [ ] `keepword install`: prints (does not silently write) the settings.json hook snippet.
-- [ ] README: one-line problem, before/after numbers, screenshot of `measure`, install.
+- [x] `python3 -m keepword.hook`: one entry point that Claude Code calls for Stop and PreToolUse events.
+- [x] Retry cap so a Stop-hook block cannot loop forever.
+- [x] Python version guard: the hook needs 3.11+ for `tomllib`, but macOS system `python3` is often 3.9. On an old Python, print a clear stderr message and fail open (never block the user's work).
+- [ ] Claude Code plugin: `.claude-plugin/plugin.json`, `hooks/hooks.json` calling `python3 ${CLAUDE_PLUGIN_ROOT}/...` (stdlib only, no pip), and a `/keepword-measure` slash command. Installing the plugin turns the hooks on, so there is no `keepword install` step.
+- [ ] Marketplace: `.claude-plugin/marketplace.json` in this repo, so users run `/plugin marketplace add biancacchino/keepword` then `/plugin install keepword`.
+- [ ] README: one-line problem, before/after numbers, screenshot of `measure`, install via the plugin marketplace.
 - [x] CI on GitHub Actions (tests + lint), then `protect-main owner/keepword validate test`.
-- [ ] Publish to PyPI (needs my approval).
+- [ ] Optional: publish to PyPI so `uvx keepword measure` works without installing the plugin (needs my approval).
+
+## Why a plugin, not a skill
+
+- A skill is instructions Claude chooses to follow, which is the wish-list problem keepword exists to fix.
+- Enforcement lives in hooks, and a plugin is how Claude Code ships hooks.
+- PyPI is a second channel for `measure`, not a requirement.
 
 ## Verification
 
 - Unit tests pass for every rule type, including look-alike characters.
 - `keepword measure` on my machine reproduces the 139/1,879 baseline.
-- End to end: install the hook, ask Claude to write a sentence with an em dash, confirm it gets blocked and revised.
+- End to end: install the plugin from the marketplace, ask Claude to write a sentence with an em dash, confirm it gets blocked and revised.
 - After one week of real use, rerun `measure` and compare to the baseline. That number goes in the README.
 
 ## Hook findings (checked against code.claude.com/docs/en/hooks, 2026-10-21)
@@ -44,8 +52,9 @@ keepword turns it into a contract: it measures how often your coding agent break
 - PreToolUse can deny Write/Edit/Bash before they run (`permissionDecision: "deny"` + reason). Files and commits get real enforcement.
 - Stop hook gets `last_assistant_message` and `stop_hook_active`, and can block with a reason.
 - But the reply is already on screen when Stop runs. Blocking means Claude sends a second, corrected reply.
-- Open decision: for replies, block (forces a rewrite) or nudge via `additionalContext` (cheaper, fixes the next reply).
-- Claude Code caps Stop-hook continuations at 8 in a row; we also skip when `stop_hook_active` is true.
+- Decided: block, not nudge via `additionalContext`. Enforcement is the point; the retry cap bounds the cost.
+- Exit 1 is a non-blocking error: the action goes ahead and the user sees a hook-error notice. The hook fails open this way.
+- Claude Code caps Stop-hook continuations at 8 in a row. keepword's own cap is tighter: it skips when `stop_hook_active` is true, so each reply is blocked at most once.
 
 ## Baseline (2026-10-21, all transcripts incl. subagents)
 
@@ -58,3 +67,5 @@ keepword turns it into a contract: it measures how often your coding agent break
 - Transcript format can change between Claude Code versions. Mitigation: one parser module, a test against a sample file.
 - False positives (em dash inside code, data files, or quoted user text). Mitigation: code-fence skipping and per-rule scopes (reply / file / commit).
 - A Stop-hook block costs an extra turn of tokens. Mitigation: retry cap, and fast-path when there are no violations.
+- Plugin hooks run on every Write/Edit/Bash for every user. A crash or slow start hurts everyone. Mitigation: fail open on any internal error, keep the no-violation path fast.
+- Wrong Python on the user's machine. Mitigation: the version guard above.

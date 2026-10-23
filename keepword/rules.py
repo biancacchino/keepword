@@ -3,6 +3,9 @@
 import re
 import tomllib
 from dataclasses import dataclass, field
+from importlib import resources
+from importlib.resources.abc import Traversable
+from pathlib import Path
 
 SCOPES = ["reply", "file", "commit"]
 # Fenced blocks and inline code. Quoting a banned thing in code is not using it.
@@ -42,6 +45,14 @@ class Violation:
     match: str
     line: int
     message: str
+
+
+def find_rules(cwd: Path) -> tuple[Traversable, str]:
+    """The project's keepword.toml if it has one, else the bundled defaults. Returns (source, label)."""
+    local = cwd / "keepword.toml"
+    if local.exists():
+        return local, "keepword.toml"
+    return resources.files("keepword") / "keepword.toml", "bundled defaults"
 
 
 def load_rules(toml_text: str) -> list[Rule]:
