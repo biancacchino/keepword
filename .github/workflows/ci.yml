@@ -30,3 +30,7 @@ jobs:
       - run: |
           python3.11 -m unittest -v
           python3.14 -m unittest -v
+      - name: Installed command works outside the repo
+        run: |
+          python3.14 -m pip install .
+          cd "$RUNNER_TEMP" && keepword measure --transcripts .
